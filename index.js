@@ -23,7 +23,7 @@ const allIDs = new Map();
 
 async function loadExistingIDs(pool) {
     const result = await pool.request()
-        .query("SELECT event_id FROM event");
+        .query("SELECT eventID FROM event");
 
     return new Set(result.recordset.map(row => row.event_id));
 }
