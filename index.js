@@ -220,14 +220,25 @@ async function start() {
 app.get("/", (req, res) => {
     allIDs.clear();
     start();
-    res.send("Scraper started ✅");
+
+    res.send(`
+        <h2>Scraper started ✅</h2>
+        <p><a href="/status">View Processed IDs</a></p>
+    `);
 });
 
 app.get("/status", (req, res) => {
-    res.json({
-        total: allIDs.size,
-        ids: Array.from(allIDs.keys()).slice(0, 50)
-    });
+    let output = "<h2>Processed IDs</h2>";
+    output += `<p>Total: ${allIDs.size}</p>`;
+    output += "<ul>";
+
+    for (let id of Array.from(allIDs.keys()).slice(0, 100)) {
+        output += `<li>${id}</li>`;
+    }
+
+    output += "</ul>";
+
+    res.send(output);
 });
 
 app.listen(process.env.PORT || 3000);
