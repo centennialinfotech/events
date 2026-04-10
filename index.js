@@ -37,9 +37,12 @@ async function loadExistingIDs(pool) {
 async function getHTML(url) {
     try {
         const res = await axios.get(url, {
-            headers: { "User-Agent": "Mozilla/5.0" },
-            "Cache-Control": "no-cache",
-            timeout: 15000
+            headers: {
+                "User-Agent": "Mozilla/5.0",
+                "Cache-Control": "no-cache"
+             },
+             validateStatus: () => true,
+             timeout: 15000
         });
         return res.data;
     } catch (err) {
