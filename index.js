@@ -217,13 +217,18 @@ async function start() {
     }
 }
 
-app.get("/", (req, res) => {
-    res.send("App is running");
-});
+app.get("/", async (req, res) => {
+    try {
+        allIDs.clear(); // reset
 
-app.get("/start-scraper", async (req, res) => {
-    start();
-    res.send("Scraper started ✅");
-});
+        await start(); // run scraper ONLY when homepage is opened
 
-app.listen(process.env.PORT || 3000);
+        res.json({
+            total: allIDs.size,
+            ids: Array.from(allIDs.keys()).slice(0, 50)
+        });
+
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
