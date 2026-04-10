@@ -273,3 +273,6 @@ app.get("/status", (req, res) => {
 });
 
 app.listen(process.env.PORT || 3000);
+setInterval(() => {
+    console.log("Keeping app alive");
+}, 60000);
