@@ -166,7 +166,7 @@ WHEN MATCHED THEN UPDATE SET
     event_type=@cat,
     event_subType=@sub,
     CompanyName=@org,
-    numberOfseats=@capacity
+    numberOfseats=@capacity,
     content=@desc
 WHEN NOT MATCHED THEN
 INSERT (eventID,event_title,event_desc,edate,EventEndDate,address,city,state,zipcode,contact_name,location,status,raccurance,url,fee,event_type,event_subType,CompanyName,numberOfseats,content)
@@ -251,8 +251,7 @@ async function start() {
 
 app.get("/", (req, res) => {
     allIDs.clear();
-    start();
-
+    start().catch(err => console.log("Scraper Error:", err));
     res.send(`
         <h2>Scraper started ✅</h2>
         <p><a href="/status">View Processed IDs</a></p>
@@ -272,8 +271,3 @@ app.get("/status", (req, res) => {
 
     res.send(output);
 });
-
-app.listen(process.env.PORT || 3000);
-setInterval(() => {
-    console.log("Keeping app alive");
-}, 60000);
