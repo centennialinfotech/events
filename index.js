@@ -167,9 +167,10 @@ WHEN MATCHED THEN UPDATE SET
     event_subType=@sub,
     CompanyName=@org,
     numberOfseats=@capacity
+    content=@desc
 WHEN NOT MATCHED THEN
-INSERT (eventID,event_title,event_desc,edate,EventEndDate,address,city,state,zipcode,contact_name,location,status,raccurance,url,fee,event_type,event_subType,CompanyName,numberOfseats)
-VALUES (@id,@title,@desc,@start,@end,@address,@city,@state,@zip,@org,@loc,@status,@racc,@url,@fee,@cat,@sub,@org,@capacity);
+INSERT (eventID,event_title,event_desc,edate,EventEndDate,address,city,state,zipcode,contact_name,location,status,raccurance,url,fee,event_type,event_subType,CompanyName,numberOfseats,content)
+VALUES (@id,@title,@desc,@start,@end,@address,@city,@state,@zip,@org,@loc,@status,@racc,@url,@fee,@cat,@sub,@org,@capacity,@desc);
         `);
 
         console.log("Saved:", event.id);
