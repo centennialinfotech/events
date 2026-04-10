@@ -217,4 +217,13 @@ async function start() {
     }
 }
 
-start();
+app.get("/", (req, res) => {
+    res.send("App is running");
+});
+
+app.get("/start-scraper", async (req, res) => {
+    start();
+    res.send("Scraper started ✅");
+});
+
+app.listen(process.env.PORT || 3000);
