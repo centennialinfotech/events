@@ -20,6 +20,14 @@ const dbConfig = {
 const countries = ["india", "united-states", "united-kingdom", "australia", "germany", "france", "singapore",, "netherlands", "albania", "algeria", "andorra", "angola", "antigua-and-barbuda", "argentina", "armenia", "aruba", "austria", "azerbaijan", "the-bahamas", "bahrain", "belgium", "bolivia", "bosnia-and-herzegovina", "botswana", "brazil", "brunei", "bulgaria", "cambodia", "cameroon", "canada", "central-african-republic", "chile", "china", "colombia", "congo", "democratic-republic-of-the-congo", "costa-rica", "croatia", "curacao", "cyprus", "czech-republic", "denmark", "dominican-republic", "ecuador", "egypt", "el-salvador", "estonia", "fiji", "finland", "gambia", "ghana", "greece", "greenland", "grenada", "guatemala", "guernsey", "guinea", "guyana", "haiti", "italy--roma", "honduras", "hong-kong-sar", "hungary", "iceland", "indonesia", "iraq", "ireland", "isle-of-man", "israel", "italy", "jamaica", "japan", "jersey", "jordan", "kazakhstan", "kenya", "south-korea", "kuwait", "latvia", "lebanon", "liberia", "libya", "liechtenstein", "lithuania", "luxembourg", "mauritius", "mexico", "moldova", "monaco", "mongolia", "montenegro", "morocco", "namibia", "nepal", "new-zealand", "nicaragua", "nigeria", "niue", "norway", "oman", "pakistan", "panama", "papua-new-guinea", "paraguay", "peru", "philippines", "poland", "portugal", "qatar", "romania", "russia", "rwanda", "saint-kitts-and-nevis", "saint-lucia", "saint-vincent-and-the-grenadines", "san-marino", "saudi-arabia", "senegal", "serbia", "sint-maarten", "slovakia", "slovenia", "south-africa", "spain", "sri-lanka", "suriname", "sweden", "switzerland", "taiwan", "tajikistan", "tanzania", "thailand", "togo", "trinidad-and-tobago", "tunisia", "turkey", "turkmenistan", "uganda", "ukraine", "united-arab-emirates", "uruguay", "uzbekistan", "venezuela", "vietnam", "zambia", "zimbabwe"];
 const allIDs = new Map();
 
+
+async function loadExistingIDs(pool) {
+    const result = await pool.request()
+        .query("SELECT event_id FROM events");
+
+    return new Set(result.recordset.map(row => row.event_id));
+}
+
 // -------- FETCH HTML --------
 async function getHTML(url) {
     try {
@@ -171,7 +179,7 @@ VALUES (@id,@title,@desc,@start,@end,@address,@city,@state,@zip,@org,@loc,@statu
 }
 
 // -------- SCRAPER --------
-async function scrapeCountry(pool, country) {
+async function scrapeCountry(pool, country, existingIDs) {
     let page = 1;
     let lastIDs = [];
 
@@ -186,15 +194,34 @@ async function scrapeCountry(pool, country) {
         if (ids.length === 0 || equalArrays(ids, lastIDs)) break;
 
         for (let id of ids) {
-            if (!allIDs.has(id)) {
-                allIDs.set(id, true);
 
-                let event = await fetchEventDetails(id);
-                await saveEvent(pool, event);
+    // ✅ Skip if already processed in current run
+    if (allIDs.has(id)) continue;
 
-                await new Promise(r => setTimeout(r, 300));
-            }
-        }
+    allIDs.set(id, true);
+
+    // ✅ Skip if already in DB
+    if (existingIDs.has(id)) {
+        console.log("Skipped (already in DB):", id);
+        continue; // 🚀 NO API CALL
+    }
+
+    console.log("Fetching:", id);
+
+    let event = await fetchEventDetails(id);
+
+    if (event) {
+        await saveEvent(pool, event);
+        console.log("Saved:", event.id);
+
+        // ✅ Add to existing set so not repeated again
+        existingIDs.add(id);
+    } else {
+        console.log("Failed:", id);
+    }
+
+    await new Promise(r => setTimeout(r, 300));
+}
 
         lastIDs = ids;
         page++;
@@ -207,8 +234,11 @@ async function start() {
         const pool = await sql.connect(dbConfig);
         console.log("Connected to DB ✅");
 
+        // ✅ Load all existing IDs from DB (IMPORTANT)
+        const existingIDs = await loadExistingIDs(pool);
+
         for (let country of countries) {
-            await scrapeCountry(pool, country);
+            await scrapeCountry(pool, country, existingIDs);
         }
 
         console.log("Total Events:", allIDs.size);
