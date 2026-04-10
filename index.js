@@ -6,10 +6,10 @@ const app = express();
 
 // -------- DB CONFIG --------
 const dbConfig = {
-    user: "db_a88f53_oecollect_admin",
-    password: "Pankaj_Kumar036",
+    user: "db_ac6fa0_eventbrite_admin",
+    password: "Pankaj@12345",
     server: "sql5075.site4now.net",
-    database: "db_a88f53_oecollect",
+    database: "db_ac6fa0_eventbrite",
     options: {
         encrypt: false,
         trustServerCertificate: true
