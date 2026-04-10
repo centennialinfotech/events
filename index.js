@@ -55,7 +55,7 @@ function equalArrays(a, b) {
 // -------- FETCH EVENT --------
 async function fetchEventDetails(eventID) {
     try {
-        const url = `https://www.eventbriteapi.com/v3/events/${eventID}/?expand=organizer,category,subcategory,venue&token=YOUR_PRIVATE_TOKEN`;
+        const url = `https://www.eventbriteapi.com/v3/events/${eventID}/?expand=organizer,category,subcategory,venue&token=UGKZE2XZOKOS4YOPKL3L`;
         const res = await axios.get(url);
         return res.data;
     } catch (err) {
@@ -67,7 +67,7 @@ async function fetchEventDetails(eventID) {
 // -------- FETCH TICKET --------
 async function fetchTicketPrice(eventID) {
     try {
-        const url = `https://www.eventbriteapi.com/v3/events/${eventID}/ticket_classes/?token=YOUR_PRIVATE_TOKEN`;
+        const url = `https://www.eventbriteapi.com/v3/events/${eventID}/ticket_classes/?token=WR6UPGT7SQCLLE5CD2VR`;
         const res = await axios.get(url);
 
         let lowest = -1;
